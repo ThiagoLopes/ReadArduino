@@ -33,6 +33,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	s.Flush() // Clean data before start read
 	go mserial.LoopWriteAndRead(s, &TOKEN, &BUFFER_READ)
 	fmt.Scanln()
 	fmt.Println(BUFFER_READ)
