@@ -1,22 +1,19 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	mserial "github.com/ThiagoLopes/ReadArduino/serial"
 	"github.com/tarm/serial"
 	"log"
 	"os"
 	"time"
 )
 
-var SERIAL_PATH string
-var BAUD = 9600
 var BUFFER_READ [][]byte
 var TOKEN = []byte("1")
+var SERIAL_PATH string
 
-const TIME_WHEN_ERROR = 5 * time.Second
-const MAX_LEN_MESSAGE = 60
-const MSG_PER_TIME = time.Millisecond
+const BAUD = 9600
 
 func init() {
 	if env := os.Getenv("ARDUINO"); env == "" {
@@ -26,48 +23,17 @@ func init() {
 	}
 }
 
-func ReadSerialWithBuffer(s *serial.Port, b *[][]byte) {
-	buf_message := make([]byte, MAX_LEN_MESSAGE)
-	n, err := s.Read(buf_message)
-	if err != nil {
-		log.Println(err)
-		time.Sleep(TIME_WHEN_ERROR)
-	}
-	*b = append(*b, buf_message[:n])
-	log.Println(string(buf_message[:n]))
-
-}
-
-func LoopWriteAndRead(s *serial.Port, t *[]byte, b *[][]byte) {
-	for {
-		WriteSerialToken(s, t)
-		ReadSerialWithBuffer(s, b)
-		time.Sleep(MSG_PER_TIME)
-	}
-}
-
 func main() {
 	c := &serial.Config{
 		Name:        SERIAL_PATH,
 		Baud:        BAUD,
-		ReadTimeout: MSG_PER_TIME / 2, // RUDE
+		ReadTimeout: time.Second / 2, // RUDE
 	}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Panic(err)
 	}
-	go LoopWriteAndRead(s, &TOKEN, &BUFFER_READ)
+	go mserial.LoopWriteAndRead(s, &TOKEN, &BUFFER_READ)
 	fmt.Scanln()
 	fmt.Println(BUFFER_READ)
-}
-
-func WriteSerialToken(s *serial.Port, token *[]byte) {
-	_, err := s.Write(*token)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func NormalizeBuffer(b *[]bytes.Buffer) {
-
 }
