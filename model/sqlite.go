@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"time"
 )
 
 const (
@@ -52,7 +53,7 @@ func Insert(db *sql.DB, sds []SerialData) {
 		co2,
 		mp25,
 		created_date_at,
-		created_time_at,
+		created_time_at
 	) values(?, ?, ?, ?, ?, ?, ?)
 	`
 	stmt, err := db.Prepare(sql_addserial)
@@ -80,13 +81,14 @@ func Insert(db *sql.DB, sds []SerialData) {
 func Read(db *sql.DB) []SerialData {
 	sql_readall := `
 	SELECT
+		id,
 		humidity,
 		temperature,
 		co,
 		co2,
 		mp25,
 		created_date_at,
-		created_time_at,
+		created_time_at
 	FROM serialdata
 	`
 
@@ -99,6 +101,7 @@ func Read(db *sql.DB) []SerialData {
 	var result []SerialData
 	for rows.Next() {
 		sd := SerialData{}
+		var sd_time, sd_date string
 		err = rows.Scan(
 			&sd.Id,
 			&sd.Humidity,
@@ -106,9 +109,11 @@ func Read(db *sql.DB) []SerialData {
 			&sd.CO,
 			&sd.CO2,
 			&sd.MP25,
-			&sd.CreatedDateAt,
-			&sd.CreatedTimeAt,
+			&sd_date,
+			&sd_time,
 		)
+		sd.CreatedDateAt, _ = time.Parse(DATE, sd_date)
+		sd.CreatedTimeAt, _ = time.Parse(TIME, sd_time)
 		if err != nil {
 			log.Panic(err)
 		}
