@@ -8,8 +8,7 @@ import (
 )
 
 const (
-	DATE = "2006-01-02"
-	TIME = "15:04:05 -0700 MST"
+	DATETIME = "2006-01-02 15:04:05 -0700 MST"
 )
 
 func InitDB(filepath string) *sql.DB {
@@ -32,8 +31,7 @@ func CreateTable(db *sql.DB) {
 		co FLOAT,
 		co2 FLOAT,
 		mp25 FLOAT,
-		created_date_at DATE,
-		created_time_at TIME
+		created_at TEXT
 	);
 	`
 	// add index
@@ -52,9 +50,8 @@ func Insert(db *sql.DB, sds []SerialData) {
 		co,
 		co2,
 		mp25,
-		created_date_at,
-		created_time_at
-	) values(?, ?, ?, ?, ?, ?, ?)
+		created_at
+	) values(?, ?, ?, ?, ?, ?)
 	`
 	stmt, err := db.Prepare(sql_addserial)
 	if err != nil {
@@ -69,8 +66,7 @@ func Insert(db *sql.DB, sds []SerialData) {
 			sd.CO,
 			sd.CO2,
 			sd.MP25,
-			sd.CreatedDateAt.Format(TIME),
-			sd.CreatedTimeAt.Format(DATE),
+			sd.CreatedAt.Format(DATETIME),
 		)
 		if err != nil {
 			log.Panic(err)
@@ -87,8 +83,7 @@ func Read(db *sql.DB) []SerialData {
 		co,
 		co2,
 		mp25,
-		created_date_at,
-		created_time_at
+		created_at
 	FROM serialdata
 	`
 
@@ -101,7 +96,7 @@ func Read(db *sql.DB) []SerialData {
 	var result []SerialData
 	for rows.Next() {
 		sd := SerialData{}
-		var sd_time, sd_date string
+		var datetime string
 		err = rows.Scan(
 			&sd.Id,
 			&sd.Humidity,
@@ -109,12 +104,12 @@ func Read(db *sql.DB) []SerialData {
 			&sd.CO,
 			&sd.CO2,
 			&sd.MP25,
-			&sd_date,
-			&sd_time,
+			&datetime,
 		)
-		sd.CreatedDateAt, _ = time.Parse(DATE, sd_date)
-		sd.CreatedTimeAt, _ = time.Parse(TIME, sd_time)
 		if err != nil {
+			log.Panic(err)
+		}
+		if sd.CreatedAt, err = time.Parse(DATETIME, datetime); err != nil {
 			log.Panic(err)
 		}
 		result = append(result, sd)
