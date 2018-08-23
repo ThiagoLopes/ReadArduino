@@ -42,7 +42,7 @@ func main() {
 
 	s.Flush() // Clean data before start read
 
-	go mserial.LoopWriteAndReadAndSave(s, &TOKEN, db) //start write, read and save
+	go mserial.LoopWriteReadAndSave(s, &TOKEN, db) //start write, read and save
 
 	fmt.Scanln() // just dont close pls
 	fmt.Println(model.Read(db))

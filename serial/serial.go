@@ -32,7 +32,7 @@ func writeSerialToken(s *serial.Port, token *[]byte) {
 	}
 }
 
-func LoopWriteAndReadAndSave(s *serial.Port, t *[]byte, db *sql.DB) {
+func LoopWriteReadAndSave(s *serial.Port, t *[]byte, db *sql.DB) {
 	for {
 		writeSerialToken(s, t)
 		response_bytes := readSerialWithBuffer(s)
