@@ -2,14 +2,14 @@ package model
 
 import (
 	"os"
+	"reflect"
 	"testing"
 	"time"
-	"reflect"
 )
 
 const dbtest = "test.db"
 
-func TestAll(t *testing.T) {
+func TestInserAndRead(t *testing.T) {
 	db := InitDB(dbtest)
 	defer db.Close()
 	defer os.Remove(dbtest)
@@ -18,15 +18,23 @@ func TestAll(t *testing.T) {
 
 	nt := time.Now().UTC()
 
-	serialdatas := []SerialData{
-		SerialData{0, 100, 200, 300, 400, 500, nt},
-		SerialData{0, 101, 202, 303, 404, 505, nt},
-	}
+	t.Run("TestInsertAndRead", func(t *testing.T) {
+		serialdatas := []SerialData{
+			SerialData{0, 100, 200, 300, 400, 500, nt},
+			SerialData{0, 101, 202, 303, 404, 505, nt},
+		}
 
-	Insert(db, serialdatas)
+		Insert(db, serialdatas)
 
-	readItems := Read(db)
-	if reflect.DeepEqual(readItems, serialdatas){
-		t.Error("readItems is nos equal serialdatas")
-	}
+		readItems := Read(db)
+		if reflect.DeepEqual(readItems, serialdatas) {
+			t.Error("readItems is nos equal serialdatas")
+		}
+	})
+
+	t.Run("TestPostOrSaveDB", func(t *testing.T) {
+		test_data := []byte("33.3,44.33,444.44,33.3,55.55")
+		PostOrSaveDB(test_data, db)
+		t.Log(Read(db))
+	})
 }
