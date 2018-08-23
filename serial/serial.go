@@ -18,7 +18,7 @@ func readSerialWithBuffer(s *serial.Port) []byte {
 	buf_message := make([]byte, MAX_LEN_MESSAGE)
 	n, err := s.Read(buf_message)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		time.Sleep(TIME_WHEN_ERROR)
 	}
 	log.Println(string(buf_message[:n]))
@@ -28,7 +28,7 @@ func readSerialWithBuffer(s *serial.Port) []byte {
 func writeSerialToken(s *serial.Port, token *[]byte) {
 	_, err := s.Write(*token)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
