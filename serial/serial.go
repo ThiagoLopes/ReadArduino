@@ -35,7 +35,7 @@ func writeSerialToken(s *serial.Port, token *[]byte) {
 func LoopWriteReadAndSave(s *serial.Port, t *[]byte, db *sql.DB) {
 	for {
 		writeSerialToken(s, t)
-		response_bytes := readSerialWithBuffer(s)
+		response_bytes := readSerialWithBuffer(s) // implement a err here
 		go model.PostOrSaveDB(response_bytes, db)
 		time.Sleep(MSG_PER_TIME)
 	}

@@ -30,16 +30,16 @@ func normalizeMessage(b *[]byte, expected_size int) ([]float64, error) {
 		var err error
 		message[i], err = strconv.ParseFloat(string(value), 64)
 		if err != nil {
-			errors.New("Fail parse to Float64")
+			return nil, errors.New("Fail parse to Float64")
 		}
 	}
 	return message, nil
 }
 
-func NewSerialData(m []byte) *SerialData {
+func NewSerialData(m []byte) (*SerialData, error) {
 	normalized, err := normalizeMessage(&m, 5)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	return &SerialData{
 		0,
@@ -49,11 +49,15 @@ func NewSerialData(m []byte) *SerialData {
 		float64(normalized[3]),
 		float64(normalized[4]),
 		time.Now().UTC(),
-	}
+	}, nil
 }
 
 func PostOrSaveDB(bytes_recive []byte, db *sql.DB) {
 	// write post method, currently save only
-	serial_data := NewSerialData(bytes_recive)
+	serial_data, err := NewSerialData(bytes_recive);
+	if err != nil{
+		log.Println(err)
+		return
+	}
 	Insert(db, []SerialData{*serial_data})
 }
