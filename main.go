@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	mserial "github.com/ThiagoLopes/ReadArduino/serial"
-	"github.com/ThiagoLopes/ReadArduino/model"
+	mserial "github.com/ThiagoLopes/noir-client/serial"
+	"github.com/ThiagoLopes/noir-client/model"
 	"github.com/tarm/serial"
 	"log"
 	"os"

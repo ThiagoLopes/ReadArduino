@@ -2,7 +2,7 @@ package serial
 
 import (
 	"database/sql"
-	"github.com/ThiagoLopes/ReadArduino/model"
+	"github.com/ThiagoLopes/noir-client/model"
 	"github.com/tarm/serial"
 	"log"
 	"time"
