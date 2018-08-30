@@ -3,20 +3,22 @@ package model
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
 
 type SerialData struct {
-	Id          int
-	Humidity    float64
-	Temperature float64
-	CO          float64
-	CO2         float64
-	MP25        float64
-	CreatedAt   time.Time
+	Id          int       `json:"id"`
+	Humidity    float64   `json:"humidity"`
+	Temperature float64   `json:"temperature"`
+	CO          float64   `json:"co"`
+	CO2         float64   `json:"co2"`
+	MP25        float64   `json:"mp25"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 func normalizeMessage(b *[]byte, expected_size int) ([]float64, error) {
@@ -52,12 +54,43 @@ func NewSerialData(m []byte) (*SerialData, error) {
 	}, nil
 }
 
-func PostOrSaveDB(bytes_recive []byte, db *sql.DB) {
-	// write post method, currently save only
-	serial_data, err := NewSerialData(bytes_recive);
-	if err != nil{
+func (ss *SerialData) DecodeAndPost(c *http.Client, url string) (*http.Response, error) {
+	data, err := json.Marshal(ss)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	// create a func
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer request.Body.Close()
+	request.Header.Set("Content-Type", "application/json")
+
+	response, err := c.Do(request)
+	if err != nil {
+		log.Println(err)
+		return response, err
+	}
+
+	log.Println("status: ", response.Status)
+	return response, nil
+}
+
+func PostOrSaveDB(bytes_recive []byte, db *sql.DB, c *http.Client, url string) {
+	serial_data, err := NewSerialData(bytes_recive)
+	if err != nil {
 		log.Println(err)
 		return
 	}
-	Insert(db, []SerialData{*serial_data})
+
+	response, err := serial_data.DecodeAndPost(c, url)
+	if err != nil || response.StatusCode != 202 {
+		Insert(db, []SerialData{*serial_data})
+		return
+	}
+	log.Println("Successfully POST")
 }

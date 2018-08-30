@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	mserial "github.com/ThiagoLopes/noir-client/serial"
 	"github.com/ThiagoLopes/noir-client/model"
+	mserial "github.com/ThiagoLopes/noir-client/serial"
 	"github.com/tarm/serial"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
@@ -39,10 +40,8 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	s.Flush() // Clean data before start read
-
-	go mserial.LoopWriteReadAndSave(s, &TOKEN, db) //start write, read and save
+	client := &http.Client{}
+	go mserial.LoopWriteReadAndSave(s, &TOKEN, db, client) //start write, read and save
 
 	fmt.Scanln() // just dont close pls
 	fmt.Println(model.Read(db))

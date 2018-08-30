@@ -6,12 +6,14 @@ import (
 	"github.com/tarm/serial"
 	"log"
 	"time"
+	"net/http"
 )
 
 const (
 	TIME_WHEN_ERROR = 5 * time.Second
 	MAX_LEN_MESSAGE = 60
 	MSG_PER_TIME    = 1000 * time.Millisecond
+	HOST = "http://localhost:8000"
 )
 
 func readSerialWithBuffer(s *serial.Port) []byte {
@@ -32,11 +34,12 @@ func writeSerialToken(s *serial.Port, token *[]byte) {
 	}
 }
 
-func LoopWriteReadAndSave(s *serial.Port, t *[]byte, db *sql.DB) {
+func LoopWriteReadAndSave(s *serial.Port, t *[]byte, db *sql.DB, c *http.Client) {
 	for {
+		s.Flush() // Clean data before start read
 		writeSerialToken(s, t)
 		response_bytes := readSerialWithBuffer(s) // implement a err here
-		go model.PostOrSaveDB(response_bytes, db)
+		go model.PostOrSaveDB(response_bytes, db, c, HOST)
 		time.Sleep(MSG_PER_TIME)
 	}
 }
