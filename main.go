@@ -41,6 +41,9 @@ func main() {
 		log.Panic(err)
 	}
 	client := &http.Client{}
+
+	s.Flush() // Clean data before start read
+
 	go mserial.LoopWriteReadAndSave(s, &TOKEN, db, client) //start write, read and save
 
 	fmt.Scanln() // just dont close pls
