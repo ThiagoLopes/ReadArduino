@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"net/http"
 )
 
 const dbtest = "test.db"
@@ -34,7 +35,8 @@ func TestInserAndRead(t *testing.T) {
 
 	t.Run("TestPostOrSaveDB", func(t *testing.T) {
 		test_data := []byte("33.3,44.33,444.44,33.3,55.55")
-		PostOrSaveDB(test_data, db)
+		client := &http.Client{} // mock this
+		PostOrSaveDB(test_data, db, client, "http://localhost:0000")
 		t.Log(Read(db))
 	})
 }
