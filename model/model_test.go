@@ -10,6 +10,4 @@ func TestNewSerialData(t *testing.T) {
 
 	out := NewSerialData(test_data)
 	log.Println(out)
-
-
 }

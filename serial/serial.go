@@ -3,6 +3,7 @@ package serial
 import (
 	"database/sql"
 	"github.com/ThiagoLopes/noir-client/model"
+	"github.com/ThiagoLopes/noir-client/config"
 	"github.com/tarm/serial"
 	"log"
 	"time"
@@ -13,8 +14,9 @@ const (
 	TIME_WHEN_ERROR = 5 * time.Second
 	MAX_LEN_MESSAGE = 60
 	MSG_PER_TIME    = 1000 * time.Millisecond
-	HOST = "http://localhost:8000"
 )
+
+var HOST = config.GetEnvDefault("HOST_NOIR", "http://localhost:8000")
 
 func readSerialWithBuffer(s *serial.Port) []byte {
 	buf_message := make([]byte, MAX_LEN_MESSAGE)

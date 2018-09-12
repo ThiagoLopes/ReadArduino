@@ -2,28 +2,22 @@ package main
 
 import (
 	"fmt"
+	"github.com/ThiagoLopes/noir-client/config"
 	"github.com/ThiagoLopes/noir-client/model"
 	mserial "github.com/ThiagoLopes/noir-client/serial"
 	"github.com/tarm/serial"
 	"log"
 	"net/http"
-	"os"
+	"strconv"
 	"time"
 )
 
-var TOKEN = []byte("1")
-var SERIAL_PATH string
-
-const BAUD = 9600
-const DATABASE = "serial.db"
-
-func init() {
-	if env := os.Getenv("ARDUINO"); env == "" {
-		SERIAL_PATH = "/dev/ttyUSB0"
-	} else {
-		SERIAL_PATH = env
-	}
-}
+var (
+	TOKEN       = []byte("1")
+	BAUD, _     = strconv.Atoi(config.GetEnvDefault("BAUD", "9600"))
+	DATABASE    = config.GetEnvDefault("DATABASE", "serial.db")
+	SERIAL_PATH = config.GetEnvDefault("ARDUINO", "/dev/ttyUSB0")
+)
 
 func main() {
 	c := &serial.Config{
