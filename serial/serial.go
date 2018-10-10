@@ -14,6 +14,7 @@ const (
 	TIME_WHEN_ERROR = 5 * time.Second
 	MAX_LEN_MESSAGE = 60
 	MSG_PER_TIME    = 1000 * time.Millisecond
+	TIME_WHEN_ERROR_POST = 5 * time.Minute
 )
 
 var HOST = config.GetEnvDefault("HOST_NOIR", "http://localhost:8000")
@@ -42,5 +43,16 @@ func LoopWriteReadAndSave(s *serial.Port, t *[]byte, db *sql.DB, c *http.Client)
 		response_bytes := readSerialWithBuffer(s) // implement a err here
 		go model.PostOrSaveDB(response_bytes, db, c, HOST)
 		time.Sleep(MSG_PER_TIME)
+	}
+}
+
+
+func LoopReadAndPost(db *sql.DB, c *http.Client){
+	for {
+		sd, err := model.ReadAndPost(db, c, HOST)
+		if err != nil{
+			time.Sleep(TIME_WHEN_ERROR_POST)
+		}
+		sd.Delete(db)
 	}
 }

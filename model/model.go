@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+var (
+	LAST_POST_SUCCESSIVE bool
+)
+
 type SerialData struct {
 	Id          int       `json:"id"`
 	Humidity    float64   `json:"humidity"`
@@ -54,8 +58,8 @@ func NewSerialData(m []byte) (*SerialData, error) {
 	}, nil
 }
 
-func (ss *SerialData) DecodeAndPost(c *http.Client, url string) (*http.Response, error) {
-	data, err := json.Marshal(ss)
+func (sd *SerialData) DecodeAndPost(c *http.Client, url string) (*http.Response, error) {
+	data, err := json.Marshal(sd)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -90,7 +94,41 @@ func PostOrSaveDB(bytes_recive []byte, db *sql.DB, c *http.Client, url string) {
 	response, err := serial_data.DecodeAndPost(c, url)
 	if err != nil || response.StatusCode != 202 {
 		Insert(db, []SerialData{*serial_data})
+		LAST_POST_SUCCESSIVE = false
 		return
 	}
 	log.Println("Successfully POST")
+	LAST_POST_SUCCESSIVE = true
+}
+
+func hasRow(db *sql.DB) (SerialData, bool) {
+	sds := Read(db, true)
+	if len(sds) == 1 {
+		log.Println("ROW FOUND")
+		return sds[0], true
+	}
+	log.Println("EMPTY TABLE")
+	return SerialData{}, false
+}
+
+func ReadAndPost(db *sql.DB, c *http.Client, url string) (SerialData, error){
+	sd, has := hasRow(db)
+	if LAST_POST_SUCCESSIVE && has {
+		response, err := sd.DecodeAndPost(c, url)
+		if err != nil || response.StatusCode != 202 {
+			log.Println("FAIL POST saved data")
+			return SerialData{}, errors.New("FAIL POST")
+		}
+		log.Println("Successfully POST saved data")
+		return sd, nil
+	}
+	return SerialData{}, errors.New("No data to retry to POST")
+}
+
+func (sd *SerialData) Delete(db *sql.DB){
+	success, err := DeleteFromDB(db, sd.Id)
+	if !success{
+		log.Fatal(err)
+	}
+	log.Println("ITEM DELETED")
 }

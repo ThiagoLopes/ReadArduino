@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
@@ -10,6 +11,8 @@ import (
 const (
 	DATETIME = "2006-01-02 15:04:05 -0700 MST"
 )
+
+var ctx = context.Background()
 
 func InitDB(filepath string) *sql.DB {
 	db, err := sql.Open("sqlite3", filepath)
@@ -74,7 +77,7 @@ func Insert(db *sql.DB, sds []SerialData) {
 	}
 }
 
-func Read(db *sql.DB) []SerialData {
+func Read(db *sql.DB, limit bool) []SerialData {
 	sql_readall := `
 	SELECT
 		id,
@@ -84,8 +87,14 @@ func Read(db *sql.DB) []SerialData {
 		co2,
 		mp25,
 		created_at
-	FROM serialdata
+	FROM
+		serialdata
+	ORDER BY
+		created_at
 	`
+	if limit{
+		sql_readall += `LIMIT 1`
+	}
 
 	rows, err := db.Query(sql_readall)
 	if err != nil {
@@ -115,4 +124,18 @@ func Read(db *sql.DB) []SerialData {
 		result = append(result, sd)
 	}
 	return result
+}
+
+
+func DeleteFromDB(db *sql.DB, id int) (bool, error){
+	sql := `DELETE FROM
+			   serialdata
+		   WHERE
+			   id=?`
+	row, err := db.QueryContext(ctx, sql, id)
+	defer row.Close()
+	if err != nil{
+		return false, err
+	}
+	return true, nil
 }
