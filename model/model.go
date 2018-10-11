@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	LAST_POST_SUCCESSIVE bool
+	LAST_POST_SUCCESSIVE bool = true
 )
 
 type SerialData struct {
