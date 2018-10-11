@@ -127,7 +127,7 @@ func ReadAndPost(db *sql.DB, c *http.Client, url string) (SerialData, error){
 
 func (sd *SerialData) Delete(db *sql.DB){
 	success, err := DeleteFromDB(db, sd.Id)
-	if !success{
+	if err != nil || !success{
 		log.Fatal(err)
 	}
 	log.Println("ITEM DELETED")

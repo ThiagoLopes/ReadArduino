@@ -54,5 +54,6 @@ func LoopReadAndPost(db *sql.DB, c *http.Client){
 			time.Sleep(TIME_WHEN_ERROR_POST)
 		}
 		sd.Delete(db)
+		time.Sleep(MSG_PER_TIME)
 	}
 }
