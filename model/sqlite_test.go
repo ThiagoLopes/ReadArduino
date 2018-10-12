@@ -27,7 +27,7 @@ func TestInserAndRead(t *testing.T) {
 
 		Insert(db, serialdatas)
 
-		readItems := Read(db)
+		readItems := Read(db, false)
 		if reflect.DeepEqual(readItems, serialdatas) {
 			t.Error("readItems is nos equal serialdatas")
 		}
@@ -37,6 +37,6 @@ func TestInserAndRead(t *testing.T) {
 		test_data := []byte("33.3,44.33,444.44,33.3,55.55")
 		client := &http.Client{} // mock this
 		PostOrSaveDB(test_data, db, client, "http://localhost:0000")
-		t.Log(Read(db))
+		t.Log(Read(db, false))
 	})
 }

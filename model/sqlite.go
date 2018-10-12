@@ -74,7 +74,7 @@ func Insert(db *sql.DB, sds []SerialData) {
 	}
 }
 
-func Read(db *sql.DB) []SerialData {
+func Read(db *sql.DB, limit bool) []SerialData {
 	sql_readall := `
 	SELECT
 		id,
@@ -84,8 +84,14 @@ func Read(db *sql.DB) []SerialData {
 		co2,
 		mp25,
 		created_at
-	FROM serialdata
+	FROM
+		serialdata
+	ORDER BY
+		created_at
 	`
+	if limit {
+		sql_readall += `LIMIT 1`
+	}
 
 	rows, err := db.Query(sql_readall)
 	if err != nil {
@@ -115,4 +121,24 @@ func Read(db *sql.DB) []SerialData {
 		result = append(result, sd)
 	}
 	return result
+}
+
+func DeleteFromDB(db *sql.DB, id int) (bool, error) {
+	sql := `DELETE FROM
+			   serialdata
+		   WHERE
+			   id=?`
+
+	stmt, err := db.Prepare(sql)
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
