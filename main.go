@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/ThiagoLopes/noir-client/config"
-	"github.com/ThiagoLopes/noir-client/model"
-	mserial "github.com/ThiagoLopes/noir-client/serial"
+	"github.com/thiagolopes/noir-client/config"
+	"github.com/thiagolopes/noir-client/model"
+	mserial "github.com/thiagolopes/noir-client/serial"
 	"github.com/tarm/serial"
 	"log"
 	"net/http"

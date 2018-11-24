@@ -2,8 +2,8 @@ package serial
 
 import (
 	"database/sql"
-	"github.com/ThiagoLopes/noir-client/model"
-	"github.com/ThiagoLopes/noir-client/config"
+	"github.com/thiagolopes/noir-client/model"
+	"github.com/thiagolopes/noir-client/config"
 	"github.com/tarm/serial"
 	"log"
 	"time"
