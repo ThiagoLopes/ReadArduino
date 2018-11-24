@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"os"
 	"log"
 	"net/http"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 
 var (
 	LAST_POST_SUCCESSIVE bool = true
+	SENSOR_ID string = os.Getenv("SENSOR_ID")
 )
 
 type SerialData struct {
@@ -59,7 +61,23 @@ func NewSerialData(m []byte) (*SerialData, error) {
 }
 
 func (sd *SerialData) DecodeAndPost(c *http.Client, url string) (*http.Response, error) {
-	data, err := json.Marshal(sd)
+	data, err := json.Marshal(struct{
+		Humidity    float64   `json:"humidity"`
+		Temperature float64   `json:"temperature"`
+		CO          float64   `json:"co"`
+		CO2         float64   `json:"co2"`
+		MP25        float64   `json:"mp25"`
+		CreatedAt   time.Time `json:"created_at"`
+		Sensor      string    `json:"sensor"`
+	}{
+		Humidity: sd.Humidity,
+		Temperature: sd.Temperature,
+		CO: sd.CO,
+		CO2: sd.CO2,
+		MP25: sd.MP25,
+		CreatedAt: sd.CreatedAt,
+		Sensor: SENSOR_ID,
+	})
 	if err != nil {
 		log.Println(err)
 		return nil, err
