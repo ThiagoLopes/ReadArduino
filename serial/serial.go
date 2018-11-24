@@ -2,18 +2,18 @@ package serial
 
 import (
 	"database/sql"
-	"github.com/thiagolopes/noir-client/model"
-	"github.com/thiagolopes/noir-client/config"
 	"github.com/tarm/serial"
+	"github.com/thiagolopes/noir-client/config"
+	"github.com/thiagolopes/noir-client/model"
 	"log"
-	"time"
 	"net/http"
+	"time"
 )
 
 const (
-	TIME_WHEN_ERROR = 5 * time.Second
-	MAX_LEN_MESSAGE = 60
-	MSG_PER_TIME    = 1000 * time.Millisecond
+	TIME_WHEN_ERROR      = 5 * time.Second
+	MAX_LEN_MESSAGE      = 60
+	MSG_PER_TIME         = 1000 * time.Millisecond
 	TIME_WHEN_ERROR_POST = 5 * time.Minute
 )
 
@@ -46,11 +46,10 @@ func LoopWriteReadAndSave(s *serial.Port, t *[]byte, db *sql.DB, c *http.Client)
 	}
 }
 
-
-func LoopReadAndPost(db *sql.DB, c *http.Client){
+func LoopReadAndPost(db *sql.DB, c *http.Client) {
 	for {
 		sd, err := model.ReadAndPost(db, c, HOST)
-		if err != nil{
+		if err != nil {
 			time.Sleep(TIME_WHEN_ERROR_POST)
 		}
 		sd.Delete(db)
